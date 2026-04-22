@@ -220,6 +220,7 @@ fun AboutScreen(navController: NavHostController) {
         Text("Fiordalisi Faustino")
         Text("Stinga Mateo")
         Text("Vazquez Bautista")
+        Text("Martina Hackbartt")
 
         Spacer(modifier = Modifier.height(24.dp))
 
