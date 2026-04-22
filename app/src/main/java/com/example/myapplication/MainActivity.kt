@@ -24,6 +24,7 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -66,8 +67,14 @@ import javax.net.ssl.TrustManager
 import javax.net.ssl.X509TrustManager
 
 class MainActivity : ComponentActivity() {
+
+    lateinit var db: AppDatabase
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        db = AppDatabase.getInstance(this)
+
         enableEdgeToEdge()
         setContent {
             MyApplicationTheme {
@@ -77,6 +84,7 @@ class MainActivity : ComponentActivity() {
                     composable("menu") { Menu(navController) }
                     composable("about") { AboutScreen(navController) }
                     composable("crud") { Lista(navController, "CRUD de tareas") }
+                    composable("local") { ListaLocal(navController, "CRUD local", db) }
                 }
             }
         }
@@ -127,10 +135,17 @@ fun Menu(navController: NavHostController) {
                                 }
                             )
                             DropdownMenuItem(
-                                text = { Text("CRUD") },
+                                text = { Text("CRUD Backend") },
                                 onClick = {
                                     expanded = false
                                     navController.navigate("crud")
+                                }
+                            )
+                            DropdownMenuItem(
+                                text = { Text("CRUD Local") },
+                                onClick = {
+                                    expanded = false
+                                    navController.navigate("local")
                                 }
                             )
                         }
@@ -166,7 +181,16 @@ fun Menu(navController: NavHostController) {
                     onClick = { navController.navigate("crud") },
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    Text("CRUD")
+                    Text("CRUD Backend")
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Button(
+                    onClick = { navController.navigate("local") },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("CRUD Local")
                 }
             }
         }
@@ -317,6 +341,124 @@ fun Lista(navController: NavHostController, name: String, modifier: Modifier = M
     }
 }
 
+@Composable
+fun ListaLocal(navController: NavHostController, name: String, db: AppDatabase) {
+    val tasks = remember { mutableStateListOf<TaskEntity>() }
+    var textoInput by remember { mutableStateOf("") }
+    var editingTaskId by remember { mutableStateOf(0) }
+    var editingTaskText by remember { mutableStateOf("") }
+
+    LaunchedEffect(Unit) {
+        val localTasks = kotlinx.coroutines.withContext(Dispatchers.IO) {
+            db.taskDao().getAll()
+        }
+        tasks.clear()
+        tasks.addAll(localTasks)
+    }
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(name)
+
+        TextField(
+            value = textoInput,
+            onValueChange = { textoInput = it },
+            label = { Text("Agregar tarea local") }
+        )
+
+        Button(
+            onClick = {
+                GlobalScope.launch(Dispatchers.IO) {
+                    db.taskDao().insert(TaskEntity(task = textoInput))
+                    val updated = db.taskDao().getAll()
+                    launch(Dispatchers.Main) {
+                        tasks.clear()
+                        tasks.addAll(updated)
+                        textoInput = ""
+                    }
+                }
+            },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text("Guardar en Room")
+        }
+
+        LazyColumn(
+            modifier = Modifier.padding(16.dp)
+        ) {
+            itemsIndexed(tasks) { _, task ->
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    if (task.id == editingTaskId) {
+                        TextField(
+                            value = editingTaskText,
+                            onValueChange = { editingTaskText = it },
+                            modifier = Modifier.weight(1f)
+                        )
+
+                        Button(
+                            onClick = {
+                                GlobalScope.launch(Dispatchers.IO) {
+                                    db.taskDao().update(
+                                        task.copy(task = editingTaskText)
+                                    )
+                                    val updated = db.taskDao().getAll()
+                                    launch(Dispatchers.Main) {
+                                        tasks.clear()
+                                        tasks.addAll(updated)
+                                        editingTaskId = 0
+                                        editingTaskText = ""
+                                    }
+                                }
+                            }
+                        ) {
+                            Text("Guardar")
+                        }
+                    } else {
+                        Text(
+                            text = task.task,
+                            modifier = Modifier.weight(1f)
+                        )
+
+                        IconButton(
+                            onClick = {
+                                editingTaskId = task.id
+                                editingTaskText = task.task
+                            }
+                        ) {
+                            Icon(Icons.Default.Edit, contentDescription = "Editar")
+                        }
+
+                        IconButton(
+                            onClick = {
+                                GlobalScope.launch(Dispatchers.IO) {
+                                    db.taskDao().delete(task)
+                                    val updated = db.taskDao().getAll()
+                                    launch(Dispatchers.Main) {
+                                        tasks.clear()
+                                        tasks.addAll(updated)
+                                    }
+                                }
+                            }
+                        ) {
+                            Icon(Icons.Default.Delete, contentDescription = "Borrar")
+                        }
+                    }
+                }
+            }
+        }
+
+        Button(onClick = { navController.navigate("menu") }) {
+            Text("Ir al menú")
+        }
+    }
+}
 fun getUnsafeOkHttpClient(): OkHttpClient {
     val trustAllCerts = arrayOf<TrustManager>(object : X509TrustManager {
         override fun checkClientTrusted(chain: Array<out X509Certificate>?, authType: String?) {}
