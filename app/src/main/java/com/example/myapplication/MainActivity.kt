@@ -1,6 +1,5 @@
 package com.example.myapplication
 
-import android.annotation.SuppressLint
 import androidx.compose.foundation.Image
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.foundation.layout.Arrangement
@@ -17,6 +16,9 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -30,7 +32,11 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -107,7 +113,6 @@ fun GreetingPreview() {
     }
 }
 
-@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Menu(navController: NavHostController) {
@@ -153,11 +158,13 @@ fun Menu(navController: NavHostController) {
                 }
             )
         },
-        content = {
+        content = { paddingValues ->
             Column(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(24.dp),
+                    .fillMaxSize()
+                    .padding(paddingValues)
+                    .padding(24.dp)
+                    .verticalScroll(rememberScrollState()),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
             ) {
@@ -196,152 +203,196 @@ fun Menu(navController: NavHostController) {
         }
     )
 }
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AboutScreen(navController: NavHostController) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(24.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-        Text("Acerca de", fontSize = 24.sp)
-        Spacer(modifier = Modifier.height(16.dp))
+    Scaffold(
+        topBar = {
+            TopAppBar(title = { Text("Acerca de") })
+        }
+    ) { paddingValues ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+                .padding(24.dp)
+                .verticalScroll(rememberScrollState()),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            Text("Acerca de", fontSize = 24.sp)
+            Spacer(modifier = Modifier.height(16.dp))
 
-        Text("Materia: Desarrollo de Aplicaciones 1")
-        Spacer(modifier = Modifier.height(8.dp))
-        Text("Aplicación: Gestor de Tareas")
-        Spacer(modifier = Modifier.height(16.dp))
+            Text("Materia: Desarrollo de Aplicaciones 1")
+            Spacer(modifier = Modifier.height(8.dp))
+            Text("Aplicación: Gestor de Tareas")
+            Spacer(modifier = Modifier.height(16.dp))
 
-        Text("Integrantes:")
-        Spacer(modifier = Modifier.height(8.dp))
-        Text("Birstok Valentin")
-        Text("Aguirre Juan Ignacio")
-        Text("Fiordalisi Faustino")
-        Text("Stinga Mateo")
-        Text("Vazquez Bautista")
-        Text("Martina Hackbartt")
+            Text("Integrantes:")
+            Spacer(modifier = Modifier.height(8.dp))
+            Text("Birstok Valentin")
+            Text("Aguirre Juan Ignacio")
+            Text("Fiordalisi Faustino")
+            Text("Stinga Mateo")
+            Text("Vazquez Bautista")
+            Text("Martina Hackbartt")
 
-        Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(24.dp))
 
-        Button(onClick = { navController.navigate("menu") }) {
-            Text("Volver al menú")
+            Button(onClick = { navController.navigate("menu") }) {
+                Text("Volver al menú")
+            }
         }
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun Lista(navController: NavHostController, name: String, modifier: Modifier = Modifier) {
+fun Lista(navController: NavHostController, name: String) {
     val tasks = remember { mutableStateListOf<Task>() }
     var textoInput by remember { mutableStateOf("") }
     var editingTaskIndex by remember { mutableStateOf(-1) }
     var editingTaskText by remember { mutableStateOf("") }
 
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text(name)
-
-        TextField(
-            value = textoInput,
-            onValueChange = { textoInput = it },
-            label = { Text("Agregue una tarea") }
-        )
-
-        Button(
-            onClick = {
-                addTaskToApi(textoInput, "")
-                val aux = Task(textoInput, "")
-                tasks.add(aux)
-                textoInput = ""
-            },
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text("Agregar a la lista")
+    Scaffold(
+        topBar = {
+            TopAppBar(title = { Text(name) })
         }
-
-        LazyColumn(
-            modifier = Modifier.padding(16.dp)
+    ) { paddingValues ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+                .padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            itemsIndexed(tasks) { index, task ->
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.fillMaxWidth()
+            TextField(
+                value = textoInput,
+                onValueChange = { textoInput = it },
+                label = { Text("Agregue una tarea") },
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Button(
+                onClick = {
+                    addTaskToApi(textoInput, "")
+                    val aux = Task(textoInput, "")
+                    tasks.add(aux)
+                    textoInput = ""
+                },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Agregar a la lista")
+            }
+
+            LazyColumn(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxWidth()
+                    .padding(vertical = 16.dp)
+            ) {
+                itemsIndexed(tasks) { index, task ->
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 4.dp),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
                 ) {
-                    if (index == editingTaskIndex) {
-                        TextField(
-                            value = editingTaskText,
-                            onValueChange = { editingTaskText = it },
-                            modifier = Modifier.weight(1f)
-                        )
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(8.dp)
+                    ) {
+                        if (index == editingTaskIndex) {
+                            TextField(
+                                value = editingTaskText,
+                                onValueChange = { editingTaskText = it },
+                                modifier = Modifier.weight(1f)
+                            )
 
-                        Button(
-                            onClick = {
-                                val id = tasks[index].id
-                                updateTaskInApi(id, editingTaskText) { success ->
-                                    if (success) {
-                                        tasks[index] = Task(editingTaskText, id)
-                                        editingTaskIndex = -1
-                                        editingTaskText = ""
-                                    } else {
-                                        showError("No se pudo actualizar la tarea")
+                            Button(
+                                onClick = {
+                                    val id = tasks[index].id
+                                    updateTaskInApi(id, editingTaskText) { success ->
+                                        if (success) {
+                                            tasks[index] = Task(editingTaskText, id)
+                                            editingTaskIndex = -1
+                                            editingTaskText = ""
+                                        } else {
+                                            showError("No se pudo actualizar la tarea")
+                                        }
+                                    }
+                                },
+                                modifier = Modifier.padding(start = 8.dp)
+                            ) {
+                                Text("Guardar")
+                            }
+                        } else {
+                            Text(
+                                text = task.task,
+                                modifier = Modifier.weight(1f),
+                                style = MaterialTheme.typography.bodyLarge
+                            )
+
+                            IconButton(
+                                onClick = {
+                                    editingTaskIndex = index
+                                    editingTaskText = task.task
+                                }
+                            ) {
+                                Icon(Icons.Default.Edit, contentDescription = "Editar tarea")
+                            }
+
+                            IconButton(
+                                onClick = {
+                                    deleteTaskFromApi(task.id) { success ->
+                                        if (success) {
+                                            tasks.remove(task)
+                                        } else {
+                                            showError("No se pudo eliminar la tarea")
+                                        }
                                     }
                                 }
+                            ) {
+                                Icon(Icons.Default.Delete, contentDescription = "Borrar tarea")
                             }
-                        ) {
-                            Text("Guardar")
-                        }
-                    } else {
-                        Text(
-                            text = task.task,
-                            modifier = Modifier.weight(1f)
-                        )
-
-                        IconButton(
-                            onClick = {
-                                editingTaskIndex = index
-                                editingTaskText = task.task
-                            }
-                        ) {
-                            Icon(Icons.Default.Edit, contentDescription = "Editar tarea")
-                        }
-
-                        IconButton(
-                            onClick = {
-                                deleteTaskFromApi(task.id) { success ->
-                                    if (success) {
-                                        tasks.remove(task)
-                                    } else {
-                                        showError("No se pudo eliminar la tarea")
-                                    }
-                                }
-                            }
-                        ) {
-                            Icon(Icons.Default.Delete, contentDescription = "Borrar tarea")
                         }
                     }
                 }
             }
-        }
-
-        Button(onClick = {
-            tasks.clear()
-            fetchDataFromApi { newTasks ->
-                tasks.addAll(newTasks)
             }
-        }) {
-            Text("Conectar Backend")
-        }
 
-        Button(onClick = { navController.navigate("menu") }) {
-            Text("Ir al menú")
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Button(
+                    onClick = {
+                        tasks.clear()
+                        fetchDataFromApi { newTasks ->
+                            tasks.addAll(newTasks)
+                        }
+                    },
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Text("Conectar Backend")
+                }
+
+                Button(
+                    onClick = { navController.navigate("menu") },
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Text("Ir al menú")
+                }
+            }
         }
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ListaLocal(navController: NavHostController, name: String, db: AppDatabase) {
     val tasks = remember { mutableStateListOf<TaskEntity>() }
@@ -357,106 +408,131 @@ fun ListaLocal(navController: NavHostController, name: String, db: AppDatabase) 
         tasks.addAll(localTasks)
     }
 
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text(name)
-
-        TextField(
-            value = textoInput,
-            onValueChange = { textoInput = it },
-            label = { Text("Agregar tarea local") }
-        )
-
-        Button(
-            onClick = {
-                GlobalScope.launch(Dispatchers.IO) {
-                    db.taskDao().insert(TaskEntity(task = textoInput))
-                    val updated = db.taskDao().getAll()
-                    launch(Dispatchers.Main) {
-                        tasks.clear()
-                        tasks.addAll(updated)
-                        textoInput = ""
-                    }
-                }
-            },
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text("Guardar en Room")
+    Scaffold(
+        topBar = {
+            TopAppBar(title = { Text(name) })
         }
-
-        LazyColumn(
-            modifier = Modifier.padding(16.dp)
+    ) { paddingValues ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+                .padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            itemsIndexed(tasks) { _, task ->
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.fillMaxWidth()
+            TextField(
+                value = textoInput,
+                onValueChange = { textoInput = it },
+                label = { Text("Agregar tarea local") },
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Button(
+                onClick = {
+                    GlobalScope.launch(Dispatchers.IO) {
+                        db.taskDao().insert(TaskEntity(task = textoInput))
+                        val updated = db.taskDao().getAll()
+                        launch(Dispatchers.Main) {
+                            tasks.clear()
+                            tasks.addAll(updated)
+                            textoInput = ""
+                        }
+                    }
+                },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Guardar en Room")
+            }
+
+            LazyColumn(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxWidth()
+                    .padding(vertical = 16.dp)
+            ) {
+                itemsIndexed(tasks) { _, task ->
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 4.dp),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
                 ) {
-                    if (task.id == editingTaskId) {
-                        TextField(
-                            value = editingTaskText,
-                            onValueChange = { editingTaskText = it },
-                            modifier = Modifier.weight(1f)
-                        )
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(8.dp)
+                    ) {
+                        if (task.id == editingTaskId) {
+                            TextField(
+                                value = editingTaskText,
+                                onValueChange = { editingTaskText = it },
+                                modifier = Modifier.weight(1f)
+                            )
 
-                        Button(
-                            onClick = {
-                                GlobalScope.launch(Dispatchers.IO) {
-                                    db.taskDao().update(
-                                        task.copy(task = editingTaskText)
-                                    )
-                                    val updated = db.taskDao().getAll()
-                                    launch(Dispatchers.Main) {
-                                        tasks.clear()
-                                        tasks.addAll(updated)
-                                        editingTaskId = 0
-                                        editingTaskText = ""
+                            Button(
+                                onClick = {
+                                    GlobalScope.launch(Dispatchers.IO) {
+                                        db.taskDao().update(
+                                            task.copy(task = editingTaskText)
+                                        )
+                                        val updated = db.taskDao().getAll()
+                                        launch(Dispatchers.Main) {
+                                            tasks.clear()
+                                            tasks.addAll(updated)
+                                            editingTaskId = 0
+                                            editingTaskText = ""
+                                        }
+                                    }
+                                },
+                                modifier = Modifier.padding(start = 8.dp)
+                            ) {
+                                Text("Guardar")
+                            }
+                        } else {
+                            Text(
+                                text = task.task,
+                                modifier = Modifier.weight(1f),
+                                style = MaterialTheme.typography.bodyLarge
+                            )
+
+                            IconButton(
+                                onClick = {
+                                    editingTaskId = task.id
+                                    editingTaskText = task.task
+                                }
+                            ) {
+                                Icon(Icons.Default.Edit, contentDescription = "Editar")
+                            }
+
+                            IconButton(
+                                onClick = {
+                                    GlobalScope.launch(Dispatchers.IO) {
+                                        db.taskDao().delete(task)
+                                        val updated = db.taskDao().getAll()
+                                        launch(Dispatchers.Main) {
+                                            tasks.clear()
+                                            tasks.addAll(updated)
+                                        }
                                     }
                                 }
+                            ) {
+                                Icon(Icons.Default.Delete, contentDescription = "Borrar")
                             }
-                        ) {
-                            Text("Guardar")
-                        }
-                    } else {
-                        Text(
-                            text = task.task,
-                            modifier = Modifier.weight(1f)
-                        )
-
-                        IconButton(
-                            onClick = {
-                                editingTaskId = task.id
-                                editingTaskText = task.task
-                            }
-                        ) {
-                            Icon(Icons.Default.Edit, contentDescription = "Editar")
-                        }
-
-                        IconButton(
-                            onClick = {
-                                GlobalScope.launch(Dispatchers.IO) {
-                                    db.taskDao().delete(task)
-                                    val updated = db.taskDao().getAll()
-                                    launch(Dispatchers.Main) {
-                                        tasks.clear()
-                                        tasks.addAll(updated)
-                                    }
-                                }
-                            }
-                        ) {
-                            Icon(Icons.Default.Delete, contentDescription = "Borrar")
                         }
                     }
                 }
             }
-        }
+            }
 
-        Button(onClick = { navController.navigate("menu") }) {
-            Text("Ir al menú")
+            Button(
+                onClick = { navController.navigate("menu") },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Ir al menú")
+            }
         }
     }
 }

@@ -6,7 +6,7 @@
         <option name="selectionMode" value="DROPDOWN" />
         <DialogSelection />
       </SelectionState>
-      <SelectionState runConfigName="MainScreenTest">
+      <SelectionState runConfigName="Tests in 'com.example.myapplication'">
         <option name="selectionMode" value="DROPDOWN" />
         <DialogSelection />
       </SelectionState>
