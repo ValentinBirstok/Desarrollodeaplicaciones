@@ -26,7 +26,6 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -226,6 +225,14 @@ fun AboutScreen(navController: NavHostController) {
             Text("Materia: Desarrollo de Aplicaciones 1")
             Spacer(modifier = Modifier.height(8.dp))
             Text("Aplicación: Gestor de Tareas")
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Image(
+                painter = painterResource(id = R.drawable.integrantes),
+                contentDescription = "Foto de los integrantes",
+                modifier = Modifier.size(250.dp)
+            )
+
             Spacer(modifier = Modifier.height(16.dp))
 
             Text("Integrantes:")
