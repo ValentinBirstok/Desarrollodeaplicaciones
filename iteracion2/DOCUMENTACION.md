@@ -1,7 +1,7 @@
-# Gestor de Tareas — Iteración 2
+# Gestor de Tareas — Iteración 2 + Presentación Final
 **Materia:** Desarrollo de Aplicaciones 1 — UADE  
-**Tecnología:** React Native + Expo (TypeScript)  
-**Entrega:** 26/6/2026
+**Tecnología:** React Native + Expo (TypeScript) + Módulo Nativo Android (Kotlin)  
+**Entrega iteración 2:** 26/6/2026 | **Presentación final:** 10/7, 17/7 o 24/7/2026
 
 ---
 
@@ -13,6 +13,8 @@
 5. [Conceptos de clase aplicados](#conceptos-de-clase-aplicados)
 6. [Conexión HTTP con MockAPI](#conexión-http-con-mockapi)
 7. [Base de datos local con SQLite](#base-de-datos-local-con-sqlite)
+8. [Tests](#tests)
+9. [Módulo Nativo Android (Presentación Final)](#módulo-nativo-android-presentación-final)
 8. [Tests](#tests)
 
 ---
@@ -330,3 +332,88 @@ Testea el componente `TareaItem`:
 - Al presionar Editar llama `onEditar` con la tarea correcta
 
 Para correr los tests: `npm test`
+
+---
+
+## Módulo Nativo Android (Presentación Final)
+
+### ¿Qué es un Native Module?
+
+Un **Native Module** es un componente escrito en código nativo (Kotlin/Java en Android, Swift/Obj-C en iOS) que se expone a JavaScript a través de un puente. Permite acceder a APIs del sistema operativo que React Native no cubre de forma nativa.
+
+**Equivalencia conceptual:**
+| Concepto | Android/Kotlin | React Native |
+|----------|----------------|--------------|
+| Módulo nativo | Clase Kotlin | `requireNativeModule()` |
+| Función expuesta | `Function("nombre")` | Método llamable desde JS |
+| Retorno | Cualquier tipo primitivo | String, Number, Boolean, etc. |
+
+### Cómo probar el módulo nativo
+
+El módulo nativo **requiere compilar la app nativa**. No funciona con Expo Go (que es un entorno precompilado). Para probarlo:
+
+```bash
+# Requisito: tener Android Studio y un emulador configurado
+cd iteracion2
+npx expo run:android
+```
+
+Esto compila la app completa con el código Kotlin y la instala en el emulador o dispositivo conectado. Después aparece el botón "Módulo Nativo Android" en el menú.
+
+> Si no tienen Android Studio configurado, pueden mostrar el código Kotlin durante la presentación y explicar el concepto del bridge.
+
+### Archivos involucrados
+
+| Archivo | Descripción |
+|---------|-------------|
+| `modules/dispositivo/android/src/main/java/expo/modules/dispositivo/DispositivoModule.kt` | Código Kotlin — implementación nativa |
+| `modules/dispositivo/src/DispositivoModule.ts` | Interfaz TypeScript — cómo se ve desde JS |
+| `screens/DispositivoScreen.tsx` | Pantalla que consume el módulo |
+
+### El código Kotlin (`DispositivoModule.kt`)
+
+```kotlin
+class DispositivoModule : Module() {
+  override fun definition() = ModuleDefinition {
+    Name("Dispositivo")
+
+    Function("getModelo") {
+      Build.MODEL                           // Samsung Galaxy S21, Pixel 7, etc.
+    }
+
+    Function("getFabricante") {
+      Build.MANUFACTURER                    // Samsung, Google, etc.
+    }
+
+    Function("getVersionAndroid") {
+      "Android ${Build.VERSION.RELEASE} (API ${Build.VERSION.SDK_INT})"
+    }
+
+    Function("saludar") { nombre: String ->
+      "¡Hola, $nombre! Este mensaje viene de código Kotlin nativo en Android."
+    }
+  }
+}
+```
+
+Cada `Function` define un método que puede ser llamado desde JavaScript.
+
+### Cómo se usa desde JavaScript
+
+```typescript
+import DispositivoModule from '../modules/dispositivo/src/DispositivoModule';
+
+// Llamadas síncronas al código Kotlin
+const modelo = DispositivoModule.getModelo();       // "Pixel 7"
+const version = DispositivoModule.getVersionAndroid(); // "Android 14 (API 34)"
+const saludo = DispositivoModule.saludar("Martina"); // "¡Hola, Martina! ..."
+```
+
+### Tecnología usada: Expo Modules API
+
+Se usó la **Expo Modules API** (en lugar del puente clásico de React Native) porque:
+- Es compatible con la nueva arquitectura de React Native (usada en RN 0.81+)
+- La definición del módulo es más limpia y declarativa
+- Es el estándar recomendado para proyectos Expo desde SDK 50+
+
+El módulo se registra automáticamente mediante **autolinking** de Expo — no hace falta modificar `MainApplication.kt` manualmente.

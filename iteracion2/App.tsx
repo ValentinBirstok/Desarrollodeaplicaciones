@@ -5,6 +5,7 @@ import HomeScreen from './screens/HomeScreen';
 import TareasScreen from './screens/TareasScreen';
 import TareasLocalScreen from './screens/TareasLocalScreen';
 import AcercaDeScreen from './screens/AcercaDeScreen';
+import DispositivoScreen from './screens/DispositivoScreen';
 import { initDB } from './database/initDB';
 
 export type RootStackParamList = {
@@ -12,6 +13,7 @@ export type RootStackParamList = {
   Tareas: undefined;
   TareasLocal: undefined;
   AcercaDe: undefined;
+  Dispositivo: undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -47,6 +49,11 @@ export default function App() {
             name="AcercaDe"
             component={AcercaDeScreen}
             options={{ title: 'Acerca De' }}
+          />
+          <Stack.Screen
+            name="Dispositivo"
+            component={DispositivoScreen}
+            options={{ title: 'Módulo Nativo Android' }}
           />
         </Stack.Navigator>
       </NavigationContainer>

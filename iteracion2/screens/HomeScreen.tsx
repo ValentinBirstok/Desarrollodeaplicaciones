@@ -27,6 +27,13 @@ export default function HomeScreen({ navigation }: Props) {
       </Pressable>
 
       <Pressable
+        style={[styles.boton, styles.botonNativo]}
+        onPress={() => navigation.navigate('Dispositivo')}
+      >
+        <Text style={styles.botonTxt}>Módulo Nativo Android</Text>
+      </Pressable>
+
+      <Pressable
         style={[styles.boton, styles.botonSecundario]}
         onPress={() => navigation.navigate('AcercaDe')}
       >
@@ -69,6 +76,9 @@ const styles = StyleSheet.create({
   },
   botonTerciario: {
     backgroundColor: '#2d6a4f',
+  },
+  botonNativo: {
+    backgroundColor: '#7b2d8b',
   },
   botonTxt: {
     color: '#fff',
