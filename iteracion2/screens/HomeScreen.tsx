@@ -20,6 +20,13 @@ export default function HomeScreen({ navigation }: Props) {
       </Pressable>
 
       <Pressable
+        style={[styles.boton, styles.botonTerciario]}
+        onPress={() => navigation.navigate('TareasLocal')}
+      >
+        <Text style={styles.botonTxt}>Tareas Locales (SQLite)</Text>
+      </Pressable>
+
+      <Pressable
         style={[styles.boton, styles.botonSecundario]}
         onPress={() => navigation.navigate('AcercaDe')}
       >
@@ -59,6 +66,9 @@ const styles = StyleSheet.create({
   },
   botonSecundario: {
     backgroundColor: '#4a7bc8',
+  },
+  botonTerciario: {
+    backgroundColor: '#2d6a4f',
   },
   botonTxt: {
     color: '#fff',
